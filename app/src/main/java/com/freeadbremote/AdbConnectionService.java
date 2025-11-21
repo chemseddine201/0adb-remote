@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import com.freeadbremote.AdbConnectionManager;
 import com.freeadbremote.AdbServerManager;
+import com.freeadbremote.ConnectionMonitor;
 import com.freeadbremote.ControlActivity;
 import com.freeadbremote.R;
 
@@ -29,6 +30,7 @@ public class AdbConnectionService extends Service {
     private static final String KEY_PORT = "last_port";
     
     private AdbConnectionManager connectionManager;
+    private ConnectionMonitor connectionMonitor;
     private boolean isConnected = false;
 
     @Override
@@ -38,6 +40,7 @@ public class AdbConnectionService extends Service {
         
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         connectionManager = AdbConnectionManager.getInstance(this);
+        connectionMonitor = new ConnectionMonitor(this);
         
         createNotificationChannel();
     }
@@ -45,6 +48,11 @@ public class AdbConnectionService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand called");
+        
+        // Ensure connectionMonitor is initialized
+        if (connectionMonitor == null) {
+            connectionMonitor = new ConnectionMonitor(this);
+        }
         
         if (intent == null) {
             Log.w(TAG, "onStartCommand called with null intent - attempting to restore connection");
@@ -92,6 +100,10 @@ public class AdbConnectionService extends Service {
             Log.w(TAG, "No previous connection to restore");
             // Keep service alive but don't attempt connection
             startForeground(NOTIFICATION_ID, createNotification("ADB Remote - Service Ready"));
+            // Start monitoring anyway in case connection is established later
+            if (connectionMonitor != null) {
+                connectionMonitor.startMonitoring();
+            }
         }
     }
 
@@ -108,6 +120,10 @@ public class AdbConnectionService extends Service {
                         Log.i(TAG, "Connection callback: onConnected");
                         isConnected = true;
                         updateNotification("ADB Remote - Connected to " + host);
+                        // Start connection monitoring
+                        if (connectionMonitor != null) {
+                            connectionMonitor.startMonitoring();
+                        }
                     }
 
                     @Override
@@ -127,6 +143,11 @@ public class AdbConnectionService extends Service {
 
     private void stopConnection() {
         Log.i(TAG, "Stopping connection");
+        
+        // Stop connection monitoring
+        if (connectionMonitor != null) {
+            connectionMonitor.stopMonitoring();
+        }
         
         if (connectionManager != null) {
             connectionManager.disconnect();

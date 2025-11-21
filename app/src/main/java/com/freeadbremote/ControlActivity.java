@@ -1176,6 +1176,17 @@ public class ControlActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        // Check connection health and reconnect if needed when app returns to foreground
+        if (AdbConnectionManager.isConnected && AdbConnectionManager.connectedHost != null) {
+            ConnectionMonitor monitor = new ConnectionMonitor(this);
+            if (monitor.isMonitoring()) {
+                monitor.checkAndReconnect();
+            } else {
+                // Start monitoring if not already started
+                monitor.startMonitoring();
+            }
+        }
         // Update connection status when activity resumes
         updateConnectionStatus();
         // Resume periodic updates

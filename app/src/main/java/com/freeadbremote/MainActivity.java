@@ -381,6 +381,12 @@ public class MainActivity extends AppCompatActivity {
             // Update UI to show connected state
             isConnected = true;
             statusTextView.setText("Connected to " + AdbConnectionManager.connectedHost + ":" + AdbConnectionManager.connectedPort);
+            
+            // Check connection health and reconnect if needed
+            ConnectionMonitor monitor = new ConnectionMonitor(this);
+            if (monitor.isMonitoring()) {
+                monitor.checkAndReconnect();
+            }
         } else {
             // Update UI to show disconnected state
             isConnected = false;

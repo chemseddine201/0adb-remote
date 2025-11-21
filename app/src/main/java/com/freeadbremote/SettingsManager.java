@@ -27,6 +27,7 @@ public class SettingsManager {
     // Performance settings
     private static final String KEY_CACHE_ENABLED = "cache_enabled";
     private static final String KEY_CACHE_SIZE = "cache_size";
+    private static final String KEY_HEARTBEAT_INTERVAL = "heartbeat_interval";
     
     // Default values
     private static final String DEFAULT_HOST = "192.168.1.128";
@@ -40,6 +41,7 @@ public class SettingsManager {
     private static final boolean DEFAULT_DARK_MODE = false;
     private static final boolean DEFAULT_CACHE_ENABLED = true;
     private static final int DEFAULT_CACHE_SIZE = 50; // MB
+    private static final long DEFAULT_HEARTBEAT_INTERVAL = 15_000; // 30 seconds
     
     private final SharedPreferences prefs;
     private final LogManager logManager;
@@ -145,6 +147,15 @@ public class SettingsManager {
     
     public void setCacheSize(int sizeMB) {
         prefs.edit().putInt(KEY_CACHE_SIZE, sizeMB).apply();
+    }
+    
+    public long getHeartbeatInterval() {
+        return prefs.getLong(KEY_HEARTBEAT_INTERVAL, DEFAULT_HEARTBEAT_INTERVAL);
+    }
+    
+    public void setHeartbeatInterval(long intervalMs) {
+        prefs.edit().putLong(KEY_HEARTBEAT_INTERVAL, intervalMs).apply();
+        logManager.logInfo("Heartbeat interval set to: " + intervalMs + "ms");
     }
     
     /**
