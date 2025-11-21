@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Clean Modern Remote Control Body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M20,20 L88,20 Q92,20 92,24 L92,84 Q92,88 88,88 L20,88 Q16,88 16,84 L16,24 Q16,20 20,20 Z"/>
+    
+    <!-- 4 Control Buttons in the Middle - 2x2 Grid -->
+    <!-- Top Left Button -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M32,32 L44,32 L44,44 L32,44 Z"/>
+    
+    <!-- Top Right Button -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M64,32 L76,32 L76,44 L64,44 Z"/>
+    
+    <!-- Bottom Left Button -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M32,64 L44,64 L44,76 L32,76 Z"/>
+    
+    <!-- Bottom Right Button -->
+    <path
+        android:fillColor="#2196F3"
+        android:pathData="M64,64 L76,64 L76,76 L64,76 Z"/>
+</vector>

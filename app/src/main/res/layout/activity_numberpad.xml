@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F5F5F5">
+
+    <!-- Header -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#2196F3">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/backButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                app:cornerRadius="24dp"
+                app:backgroundTint="#FFFFFF"
+                app:icon="@drawable/ic_arrow_back"
+                app:iconSize="24dp"
+                app:iconTint="#2196F3" />
+
+            <TextView
+                android:id="@+id/connectionStatusTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Number Pad"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Number Pad -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center">
+
+            <!-- Row 1: 1, 2, 3 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number1Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="1"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number2Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="2"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number3Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="3"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <!-- Row 2: 4, 5, 6 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number4Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="4"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number5Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="5"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number6Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="6"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <!-- Row 3: 7, 8, 9 -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number7Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="7"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number8Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="8"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number9Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="9"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
+            <!-- Row 4: 0 and Backspace -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/number0Button"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_marginEnd="12dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#424242"
+                    android:text="0"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/backspaceButton"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#F44336"
+                    android:text="⌫"
+                    android:textSize="32sp"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

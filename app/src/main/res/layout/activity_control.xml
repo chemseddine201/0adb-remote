@@ -1,0 +1,565 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background">
+
+    <!-- Connection Status Indicator (Top Right) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:gravity="end|center_vertical"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/connectionStatusIndicator"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:background="@drawable/connection_indicator"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/connectionStatusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="12sp"
+            android:textColor="@color/text_primary"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Control Containers (Vertical Layout - Top to Bottom) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <!-- Container 1: Back, Home, All Apps (Left to Right) -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/backButton"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        app:backgroundTint="@color/button_background"
+                        app:strokeWidth="0dp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_arrow_back"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/button_icon"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/homeButton"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
+                        app:backgroundTint="@color/button_background"
+                        app:strokeWidth="0dp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_home"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/button_icon"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/appsManagerButton"
+                        android:layout_width="0dp"
+                        android:layout_height="64dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        app:backgroundTint="@color/button_background"
+                        app:strokeWidth="0dp"
+                        app:cornerRadius="8dp"
+                        app:icon="@drawable/ic_android"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/button_icon"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Container 2: Control Buttons - D-Pad (Cross Pattern) -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <!-- Top: Up Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/upButton"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_marginBottom="8dp"
+                        app:cornerRadius="40dp"
+                        app:backgroundTint="@color/button_background"
+                        app:strokeWidth="0dp"
+                        app:icon="@drawable/ic_arrow_up"
+                        app:iconSize="40dp"
+                        app:iconTint="@color/button_icon"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <!-- Middle Row: Left, OK, Right -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/leftButton"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="40dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_arrow_left"
+                            app:iconSize="40dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/okButton"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="40dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_radio_button_checked"
+                            app:iconSize="40dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/rightButton"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginStart="8dp"
+                            app:cornerRadius="40dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_arrow_right"
+                            app:iconSize="40dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+                    </LinearLayout>
+
+                    <!-- Bottom: Down Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/downButton"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_marginBottom="8dp"
+                        app:cornerRadius="40dp"
+                        app:backgroundTint="@color/button_background"
+                        app:strokeWidth="0dp"
+                        app:icon="@drawable/ic_arrow_down"
+                        app:iconSize="40dp"
+                        app:iconTint="@color/button_icon"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <!-- Channel Up/Down Buttons -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/channelDownButton"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="4dp"
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            android:text="CH-"
+                            android:textSize="14sp"
+                            android:textColor="@color/button_icon" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/channelUpButton"
+                            android:layout_width="0dp"
+                            android:layout_height="64dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="4dp"
+                            app:cornerRadius="8dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            android:text="CH+"
+                            android:textSize="14sp"
+                            android:textColor="@color/button_icon" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Container 3: Audio Buttons and Feature Buttons -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <!-- Audio Controls Row -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/volumeDownButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_volume_down"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/muteButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_volume_off"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/volumeUpButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_volume_up"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+                    </LinearLayout>
+
+                    <!-- Feature Buttons Row (Numpad, Keyboard) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/numberPadButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_numbers"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/keyboardButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_keyboard"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Container 4: Media Buttons (Two Lines) -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <!-- First Row: Previous, Play/Pause, Stop, Next -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaPreviousButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_skip_previous"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaPlayPauseButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_play_arrow"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaStopButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_stop"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaNextButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_skip_next"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+                    </LinearLayout>
+
+                    <!-- Second Row: Rewind, Fast Forward -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaRewindButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginEnd="8dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_fast_rewind_backward"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/mediaFastForwardButton"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            app:cornerRadius="32dp"
+                            app:backgroundTint="@color/button_background"
+                            app:strokeWidth="0dp"
+                            app:icon="@drawable/ic_fast_forward"
+                            app:iconSize="32dp"
+                            app:iconTint="@color/button_icon"
+                            app:iconGravity="textStart"
+                            app:iconPadding="0dp"
+                            android:text=""
+                            style="@style/Widget.Material3.Button.IconButton" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Container 5: System Buttons Row 2 (Power, Apps) -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:gravity="center">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/powerButton"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        app:cornerRadius="32dp"
+                        app:backgroundTint="@color/button_power"
+                        app:strokeWidth="0dp"
+                        app:icon="@drawable/ic_power_settings_new"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/white"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/restartButton"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        android:layout_marginEnd="8dp"
+                        app:cornerRadius="32dp"
+                        app:backgroundTint="@color/button_restart"
+                        app:strokeWidth="0dp"
+                        app:icon="@drawable/ic_restart"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/white"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/infoButton"
+                        android:layout_width="64dp"
+                        android:layout_height="64dp"
+                        app:cornerRadius="32dp"
+                        app:backgroundTint="@color/button_info"
+                        app:strokeWidth="0dp"
+                        app:icon="@drawable/ic_info"
+                        app:iconSize="32dp"
+                        app:iconTint="@color/white"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        android:text=""
+                        style="@style/Widget.Material3.Button.IconButton" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

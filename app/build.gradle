@@ -1,0 +1,55 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.freeadbremote'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.freeadbremote"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.cardview:cardview:1.0.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
+}
+
+// Task to copy server JAR to assets before building (optional - only if server JAR exists)
+task copyServerJarToAssets(type: Copy) {
+    def serverJar = file("$rootDir/deploy/AppManagerServer.jar")
+    if (serverJar.exists()) {
+        from serverJar
+        into "$projectDir/src/main/assets"
+        rename { "AppManagerServer.jar" }
+    } else {
+        // Create empty assets directory if it doesn't exist
+        doFirst {
+            file("$projectDir/src/main/assets").mkdirs()
+        }
+    }
+}
+
+// Make sure assets are prepared before building (only if server JAR exists)
+preBuild.dependsOn copyServerJarToAssets
+

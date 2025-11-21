@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light Mode Colors -->
+    <color name="primary">#2196F3</color>
+    <color name="background">#F5F5F5</color>
+    <color name="background_dark">#121212</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_dark">#1E1E1E</color>
+    <color name="green">#4CAF50</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="grey">#9E9E9E</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#000000</color>
+    <color name="text_primary_dark">#FFFFFF</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_secondary_dark">#B3B3B3</color>
+    
+    <!-- Button Colors -->
+    <color name="button_background">#424242</color>
+    <color name="button_background_dark">#FFFFFF</color>
+    <color name="button_icon">#FFFFFF</color>
+    <color name="button_icon_dark">#000000</color>
+    
+    <!-- Card Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_background_dark">#2C2C2C</color>
+    
+    <!-- Specific Button Colors (fixed, not theme-dependent) -->
+    <color name="button_power">#000000</color>
+    <color name="button_restart">#FF9800</color>
+    <color name="button_info">#2196F3</color>
+    
+    <!-- Icon Colors for Apps Manager -->
+    <color name="icon_clear">#FFFFFF</color>
+    <color name="icon_clear_dark">#FFFFFF</color>
+</resources>
