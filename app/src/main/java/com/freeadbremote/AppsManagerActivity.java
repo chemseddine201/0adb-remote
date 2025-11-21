@@ -137,9 +137,10 @@ public class AppsManagerActivity extends AppCompatActivity {
         
         refreshButton.setOnClickListener(v -> {
             v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
-            // Refresh cache and then load apps
-            AdbServerManager.refreshAppNamesCache(this);
-            mainHandler.postDelayed(this::loadApps, 500);
+            // Disable button during refresh to prevent multiple clicks
+            refreshButton.setEnabled(false);
+            // Clear cache and reload apps synchronously
+            refreshAndLoadApps();
         });
     }
     
@@ -185,6 +186,75 @@ public class AppsManagerActivity extends AppCompatActivity {
             });
     }
     
+    private void refreshAndLoadApps() {
+        if (!isLoading.compareAndSet(false, true)) {
+            logManager.logWarn("refreshAndLoadApps: Already loading, ignoring duplicate request");
+            Toast.makeText(this, "Already refreshing...", Toast.LENGTH_SHORT).show();
+            refreshButton.setEnabled(true);
+            return;
+        }
+        
+        logManager.logInfo("refreshAndLoadApps: Refreshing and loading all apps");
+        showLoading();
+        
+        // Clear running packages cache first
+        runningPackages.clear();
+        logManager.logDebug("refreshAndLoadApps: Cleared runningPackages, size: " + runningPackages.size());
+        
+        // Step 1: Get running apps using ps -A command
+        getRunningPackages(() -> {
+            logManager.logInfo("refreshAndLoadApps: getRunningPackages completed, found " + runningPackages.size() + " running packages");
+            
+            // Log some running packages for debugging
+            if (!runningPackages.isEmpty()) {
+                int count = 0;
+                for (String pkg : runningPackages) {
+                    if (count < 5) {
+                        logManager.logDebug("Running package: " + pkg);
+                        count++;
+                    }
+                }
+            }
+            
+            // Step 2: Clear app names cache
+            try {
+                CacheManager cacheManager = CacheManager.getInstance(AppsManagerActivity.this);
+                cacheManager.clearAppNamesCache();
+                logManager.logDebug("refreshAndLoadApps: Cleared app names cache");
+            } catch (Exception e) {
+                logManager.logWarn("Failed to clear cache: " + e.getMessage());
+            }
+            
+            // Step 3: Get all installed apps from server
+            logManager.logInfo("refreshAndLoadApps: Requesting user apps from server");
+            serverClient.getUserApps(new ServerClient.ServerCallback<List<ServerClient.AppInfo>>() {
+                @Override
+                public void onSuccess(List<ServerClient.AppInfo> apps) {
+                    logManager.logInfo("refreshAndLoadApps: Received " + apps.size() + " apps from server");
+                    mainHandler.post(() -> {
+                        isLoading.set(false);
+                        mergeAndSortApps(apps);
+                        refreshButton.setEnabled(true);
+                        logManager.logInfo("refreshAndLoadApps: Completed successfully");
+                    });
+                }
+                
+                @Override
+                public void onError(String error) {
+                    logManager.logError("refreshAndLoadApps: Failed to get apps: " + error);
+                    mainHandler.post(() -> {
+                        isLoading.set(false);
+                        hideLoading();
+                        refreshButton.setEnabled(true);
+                        showError("Failed to load apps: " + error);
+                        emptyStateTextView.setVisibility(View.VISIBLE);
+                        emptyStateTextView.setText("Failed to load apps: " + error);
+                    });
+                }
+            });
+        });
+    }
+    
     private void loadApps() {
         if (!isLoading.compareAndSet(false, true)) {
             logManager.logWarn("loadApps: Already loading, ignoring duplicate request");
@@ -224,15 +294,24 @@ public class AppsManagerActivity extends AppCompatActivity {
     private void mergeAndSortApps(List<ServerClient.AppInfo> apps) {
         hideLoading();
         
+        logManager.logInfo("mergeAndSortApps: Processing " + apps.size() + " apps, runningPackages size: " + runningPackages.size());
+        
         // Convert to AppItem and mark running status
         List<AppItem> appItems = new ArrayList<>();
+        int runningCount = 0;
         for (ServerClient.AppInfo app : apps) {
             AppItem item = new AppItem();
             item.packageName = app.packageName;
             item.name = app.name != null ? app.name : app.packageName;
             item.isRunning = runningPackages.contains(app.packageName);
+            if (item.isRunning) {
+                runningCount++;
+                logManager.logDebug("mergeAndSortApps: Marked as running: " + app.packageName);
+            }
             appItems.add(item);
         }
+        
+        logManager.logInfo("mergeAndSortApps: Found " + runningCount + " running apps out of " + appItems.size() + " total apps");
         
         // Sort: running apps first, then stopped apps
         Collections.sort(appItems, (a, b) -> {
@@ -269,11 +348,12 @@ public class AppsManagerActivity extends AppCompatActivity {
             emptyStateTextView.setVisibility(View.GONE);
             appsRecyclerView.setVisibility(View.VISIBLE);
             adapter.setApps(appItems);
-            int runningCount = 0;
+            // Count running apps (runningCount was already calculated above)
+            int finalRunningCount = 0;
             for (AppItem item : appItems) {
-                if (item.isRunning) runningCount++;
+                if (item.isRunning) finalRunningCount++;
             }
-            appCountTextView.setText("Total: " + appItems.size() + " apps (" + runningCount + " running)");
+            appCountTextView.setText("Total: " + appItems.size() + " apps (" + finalRunningCount + " running)");
         }
     }
     
@@ -467,7 +547,8 @@ public class AppsManagerActivity extends AppCompatActivity {
                 
                 @Override
                 public void onError(String error) {
-                    logManager.logWarn("Failed to get running packages: " + error);
+                    logManager.logError("getRunningPackages: Failed to get running packages: " + error);
+                    // Continue even if there's an error - apps will just show as not running
                     mainHandler.post(onComplete);
                 }
                 
@@ -475,8 +556,17 @@ public class AppsManagerActivity extends AppCompatActivity {
                 public void onComplete(int exitCode) {
                     // Parse running packages from ps output
                     String result = output.toString();
+                    logManager.logDebug("getRunningPackages: ps output length: " + result.length() + ", exitCode: " + exitCode);
+                    
+                    if (result.isEmpty()) {
+                        logManager.logWarn("getRunningPackages: Empty output from ps command");
+                        mainHandler.post(onComplete);
+                        return;
+                    }
+                    
                     String[] lines = result.split("\n");
                     final String REMOTE_SERVER_PACKAGE = "com.freeadbremote.remoteserver";
+                    int processedLines = 0;
                     
                     for (String line : lines) {
                         line = line.trim();
@@ -495,16 +585,27 @@ public class AppsManagerActivity extends AppCompatActivity {
                                     String[] subParts = part.split(":", 2);
                                     if (subParts.length == 2 && !REMOTE_SERVER_PACKAGE.equals(subParts[1])) {
                                         runningPackages.add(subParts[1]);
+                                        processedLines++;
                                     }
                                 } else {
                                     runningPackages.add(part);
+                                    processedLines++;
                                 }
                                 break;
                             }
                         }
                     }
                     
-                    logManager.logInfo("getRunningPackages: Found " + runningPackages.size() + " running packages");
+                    logManager.logInfo("getRunningPackages: Processed " + processedLines + " lines, found " + runningPackages.size() + " unique running packages");
+                    if (!runningPackages.isEmpty()) {
+                        int count = 0;
+                        for (String pkg : runningPackages) {
+                            if (count < 3) {
+                                logManager.logDebug("getRunningPackages: Sample package: " + pkg);
+                                count++;
+                            }
+                        }
+                    }
                     mainHandler.post(onComplete);
                 }
             });
