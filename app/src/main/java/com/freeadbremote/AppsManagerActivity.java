@@ -101,7 +101,7 @@ public class AppsManagerActivity extends AppCompatActivity {
         
         // Initialize adapter with pinned apps manager
         adapter = new AppsAdapter(this::onAppClicked, pinnedAppsManager);
-        adapter.setOnPinChangedCallback(this::loadApps);
+        adapter.setOnPinChangedCallback(this::reloadAppsWithCurrentData);
         appsRecyclerView.setAdapter(adapter);
         
         // Load apps
@@ -312,6 +312,62 @@ public class AppsManagerActivity extends AppCompatActivity {
                 }
             });
         });
+    }
+    
+    /**
+     * Reload apps list with current data (running packages and pinned apps)
+     * without fetching from server again - used after pin/unpin operations
+     */
+    private void reloadAppsWithCurrentData() {
+        if (adapter == null || adapter.apps == null || adapter.apps.isEmpty()) {
+            // If no apps loaded yet, do a full reload
+            loadApps();
+            return;
+        }
+        
+        logManager.logInfo("reloadAppsWithCurrentData: Re-sorting current apps list");
+        
+        // Update pinned status for all current apps
+        List<AppItem> currentApps = new ArrayList<>(adapter.apps);
+        for (AppItem item : currentApps) {
+            item.isPinned = pinnedAppsManager.isPinned(item.packageName);
+        }
+        
+        // Re-sort with updated pinned status
+        Collections.sort(currentApps, (a, b) -> {
+            // Pinned apps come first
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            
+            // If both pinned or both not pinned, check running status
+            if (a.isRunning && !b.isRunning) return -1;
+            if (!a.isRunning && b.isRunning) return 1;
+            
+            // Within same group (pinned/running status), sort alphabetically
+            return a.name.compareToIgnoreCase(b.name);
+        });
+        
+        // Update adapter with re-sorted list
+        adapter.setApps(currentApps);
+        
+        // Update count text
+        int runningCount = 0;
+        int pinnedCount = 0;
+        for (AppItem item : currentApps) {
+            if (item.isRunning) runningCount++;
+            if (item.isPinned) pinnedCount++;
+        }
+        String countText = "Total: " + currentApps.size() + " apps";
+        if (pinnedCount > 0) {
+            countText += " (" + pinnedCount + " pinned";
+            if (runningCount > 0) {
+                countText += ", " + runningCount + " running";
+            }
+            countText += ")";
+        } else if (runningCount > 0) {
+            countText += " (" + runningCount + " running)";
+        }
+        appCountTextView.setText(countText);
     }
     
     private void mergeAndSortApps(List<ServerClient.AppInfo> apps) {
@@ -676,7 +732,7 @@ public class AppsManagerActivity extends AppCompatActivity {
     // ============================================================================
     
     static class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.ViewHolder> {
-        private List<AppItem> apps = new ArrayList<>();
+        List<AppItem> apps = new ArrayList<>(); // Package-private for access from outer class
         private final OnAppClickListener listener;
         private final PinnedAppsManager pinnedAppsManager;
         private Context context;
