@@ -23,12 +23,22 @@
 
             <TextView
                 android:id="@+id/processNameTextView"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Process Name"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary" />
+            
+            <ImageView
+                android:id="@+id/pinIconImageView"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="8dp"
+                android:src="@drawable/ic_pin"
+                android:contentDescription="Pinned app"
+                android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout

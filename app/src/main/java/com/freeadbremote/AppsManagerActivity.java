@@ -1,5 +1,6 @@
 package com.freeadbremote;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,6 +8,7 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +46,7 @@ public class AppsManagerActivity extends AppCompatActivity {
     private ServerClient serverClient;
     private AppsAdapter adapter;
     private Handler mainHandler;
+    private PinnedAppsManager pinnedAppsManager;
     
     // Connection info
     private String connectedHost;
@@ -66,6 +69,7 @@ public class AppsManagerActivity extends AppCompatActivity {
         logManager = LogManager.getInstance(this);
         connectionManager = AdbConnectionManager.getInstance(this);
         mainHandler = new Handler(Looper.getMainLooper());
+        pinnedAppsManager = new PinnedAppsManager(this);
         
         // Get connection info
         Intent intent = getIntent();
@@ -94,6 +98,11 @@ public class AppsManagerActivity extends AppCompatActivity {
         // Setup UI
         initViews();
         setupListeners();
+        
+        // Initialize adapter with pinned apps manager
+        adapter = new AppsAdapter(this::onAppClicked, pinnedAppsManager);
+        adapter.setOnPinChangedCallback(this::loadApps);
+        appsRecyclerView.setAdapter(adapter);
         
         // Load apps
         checkConnectionAndLoad();
@@ -140,9 +149,7 @@ public class AppsManagerActivity extends AppCompatActivity {
         
         connectionStatusTextView.setText("Apps Manager");
         
-        adapter = new AppsAdapter(this::onAppClicked);
         appsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        appsRecyclerView.setAdapter(adapter);
     }
     
     private void setupListeners() {
@@ -312,27 +319,41 @@ public class AppsManagerActivity extends AppCompatActivity {
         
         logManager.logInfo("mergeAndSortApps: Processing " + apps.size() + " apps, runningPackages size: " + runningPackages.size());
         
-        // Convert to AppItem and mark running status
+        // Convert to AppItem and mark running status and pinned status
         List<AppItem> appItems = new ArrayList<>();
         int runningCount = 0;
+        int pinnedCount = 0;
         for (ServerClient.AppInfo app : apps) {
             AppItem item = new AppItem();
             item.packageName = app.packageName;
             item.name = app.name != null ? app.name : app.packageName;
             item.isRunning = runningPackages.contains(app.packageName);
+            item.isPinned = pinnedAppsManager.isPinned(app.packageName);
             if (item.isRunning) {
                 runningCount++;
                 logManager.logDebug("mergeAndSortApps: Marked as running: " + app.packageName);
             }
+            if (item.isPinned) {
+                pinnedCount++;
+                logManager.logDebug("mergeAndSortApps: Marked as pinned: " + app.packageName);
+            }
             appItems.add(item);
         }
         
-        logManager.logInfo("mergeAndSortApps: Found " + runningCount + " running apps out of " + appItems.size() + " total apps");
+        logManager.logInfo("mergeAndSortApps: Found " + runningCount + " running apps, " + pinnedCount + " pinned apps out of " + appItems.size() + " total apps");
         
-        // Sort: running apps first, then stopped apps
+        // Sort: Pinned apps first, then running apps, then stopped apps
+        // Within each group, sort alphabetically
         Collections.sort(appItems, (a, b) -> {
+            // Pinned apps come first
+            if (a.isPinned && !b.isPinned) return -1;
+            if (!a.isPinned && b.isPinned) return 1;
+            
+            // If both pinned or both not pinned, check running status
             if (a.isRunning && !b.isRunning) return -1;
             if (!a.isRunning && b.isRunning) return 1;
+            
+            // Within same group (pinned/running status), sort alphabetically
             return a.name.compareToIgnoreCase(b.name);
         });
         
@@ -364,12 +385,24 @@ public class AppsManagerActivity extends AppCompatActivity {
             emptyStateTextView.setVisibility(View.GONE);
             appsRecyclerView.setVisibility(View.VISIBLE);
             adapter.setApps(appItems);
-            // Count running apps (runningCount was already calculated above)
+            // Count running and pinned apps
             int finalRunningCount = 0;
+            int finalPinnedCount = 0;
             for (AppItem item : appItems) {
                 if (item.isRunning) finalRunningCount++;
+                if (item.isPinned) finalPinnedCount++;
             }
-            appCountTextView.setText("Total: " + appItems.size() + " apps (" + finalRunningCount + " running)");
+            String countText = "Total: " + appItems.size() + " apps";
+            if (finalPinnedCount > 0) {
+                countText += " (" + finalPinnedCount + " pinned";
+                if (finalRunningCount > 0) {
+                    countText += ", " + finalRunningCount + " running";
+                }
+                countText += ")";
+            } else if (finalRunningCount > 0) {
+                countText += " (" + finalRunningCount + " running)";
+            }
+            appCountTextView.setText(countText);
         }
     }
     
@@ -635,6 +668,7 @@ public class AppsManagerActivity extends AppCompatActivity {
         String packageName;
         String name;
         boolean isRunning;
+        boolean isPinned;
     }
     
     // ============================================================================
@@ -644,13 +678,21 @@ public class AppsManagerActivity extends AppCompatActivity {
     static class AppsAdapter extends RecyclerView.Adapter<AppsAdapter.ViewHolder> {
         private List<AppItem> apps = new ArrayList<>();
         private final OnAppClickListener listener;
+        private final PinnedAppsManager pinnedAppsManager;
+        private Context context;
+        private Runnable onPinChangedCallback;
         
         interface OnAppClickListener {
             void onAppClick(AppItem app);
         }
         
-        AppsAdapter(OnAppClickListener listener) {
+        AppsAdapter(OnAppClickListener listener, PinnedAppsManager pinnedAppsManager) {
             this.listener = listener;
+            this.pinnedAppsManager = pinnedAppsManager;
+        }
+        
+        void setOnPinChangedCallback(Runnable callback) {
+            this.onPinChangedCallback = callback;
         }
         
         void setApps(List<AppItem> newApps) {
@@ -660,7 +702,8 @@ public class AppsManagerActivity extends AppCompatActivity {
         
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
+            context = parent.getContext();
+            View view = LayoutInflater.from(context)
                 .inflate(R.layout.item_process, parent, false);
             return new ViewHolder(view);
         }
@@ -670,6 +713,14 @@ public class AppsManagerActivity extends AppCompatActivity {
             AppItem app = apps.get(position);
             
             holder.processNameTextView.setText(app.name);
+            
+            // Show pinned icon
+            if (app.isPinned) {
+                holder.pinIconImageView.setVisibility(View.VISIBLE);
+                holder.pinIconImageView.setImageResource(R.drawable.ic_pin);
+            } else {
+                holder.pinIconImageView.setVisibility(View.GONE);
+            }
             
             // Show running status with theme-aware colors
             if (app.isRunning) {
@@ -685,8 +736,32 @@ public class AppsManagerActivity extends AppCompatActivity {
                     .getColor(R.color.surface, null);
                 holder.itemView.setBackgroundColor(stoppedColor);
             }
+            
+            // Click listener
             holder.itemView.setOnClickListener(v -> {
                 if (listener != null) listener.onAppClick(app);
+            });
+            
+            // Long press listener for pin/unpin
+            holder.itemView.setOnLongClickListener(v -> {
+                if (pinnedAppsManager != null && app.packageName != null) {
+                    boolean wasPinned = app.isPinned;
+                    pinnedAppsManager.togglePin(app.packageName);
+                    
+                    // Show toast
+                    if (!wasPinned) {
+                        Toast.makeText(context, "Pinned: " + app.name, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(context, "Unpinned: " + app.name, Toast.LENGTH_SHORT).show();
+                    }
+                    
+                    // Notify parent to re-sort and reload
+                    if (onPinChangedCallback != null) {
+                        onPinChangedCallback.run();
+                    }
+                    return true; // Consume the event
+                }
+                return false;
             });
         }
         
@@ -698,11 +773,13 @@ public class AppsManagerActivity extends AppCompatActivity {
         static class ViewHolder extends RecyclerView.ViewHolder {
             TextView processNameTextView;
             TextView memoryTextView;
+            android.widget.ImageView pinIconImageView;
             
             ViewHolder(View view) {
                 super(view);
                 processNameTextView = view.findViewById(R.id.processNameTextView);
                 memoryTextView = view.findViewById(R.id.memoryTextView);
+                pinIconImageView = view.findViewById(R.id.pinIconImageView);
             }
         }
     }
